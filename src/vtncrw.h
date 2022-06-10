@@ -1,58 +1,69 @@
 #pragma once
 #include "vector"
 
-typedef unsigned char u8c;
-typedef unsigned char u8p;
-typedef unsigned short int u16c;
-#define U8Max 0xFF
-#define U16Max 0xFFFF
-#define U24Max 0xFFFFFF
+//WARNING: THIS REWRITE DOES NOT WORK CURRENTLY SO IT WILL CAUSE A LOT OF COMPILE ERRORS.
 
-class Resolution{
-    public:
-    u16c x = 1;
-    u16c y = 1;
+
+//NEED SOME CREATIVE NAME HERE, THE PRESENT ONE IS NOT GOOD AT ALL
+//Basically, it is intendended to be a custom datatype that it's bit size is changeable.
+class resizeable
+{
+public:
+    bool* data;
+    unsigned int size;
+    unsigned char* toChar();
+    resizeable(/* args */);
+    ~resizeable();
 };
-class RGBA{
-    public:
-    u8c R;
-    u8c G;
-    u8c B;
-    u8c A;
+
+struct Frame {
+    //The index of the colors inside the ColorBuffer. It is used as a way to not repeat the same 4 bytes for every pixel color.
+    resizeable Pixels;
+    resizeable msDuration;
 };
-class Frame {
-    public:
-    u8c Pixels [U8Max];
-    u16c msDuration;
+
+
+struct Resolution{
+    resizeable x;
+    resizeable y;
 };
-class Layer{
-    public:
-    u8c layerKey;
-    Frame framesArray [U8Max];
+
+
+struct RGBA{
+    unsigned char R;
+    unsigned char G;
+    unsigned char B;
+    unsigned char A;
+};
+
+
+//"Group" is a generic name for how it is intended work, as each group can work differently depending of the context.
+//It can be used as a "layer" category or even as a way to separate multiple images in only one file.
+struct Group{
+    Resolution resolution;
+
+    //An array of frames.
+    Frame* frames;
+
+    //A set of numbers that is interpreted by some software in the way the developers intended.
+    //Works as a key.
+    unsigned char modifiers;
 };
 
 class VTNCFile
 {
 public:
-    bool isFile = false;
-    u8c layersQuantity;
-    Resolution layersResolution[U8Max];
-    u8c colorsQuantity;
-    RGBA Colors [U8Max];
-    u8c framesQuantity;
-    Layer *Layers;
+    RGBA *ColorBuffer;
+    Group *GroupList;
 };
 
 class VTNCRW
 {
 private:
-    u8c _TAGNeeded [5] = "VTNC";
+    unsigned char TAGNeeded [6] = "VTNCI";
 public:
     VTNCRW();
-    VTNCFile create(u8c layerQuantity, Resolution EachLayerResolution[], u8c ColorsQuantity, u8c EndsAnimationAt);
+    VTNCFile create(unsigned char layerQuantity, Resolution EachLayerResolution[], unsigned char ColorsQuantity, unsigned char EndsAnimationAt);
     VTNCFile read(std::vector<unsigned char> file);
     std::vector<unsigned char> write(VTNCFile file);
 };
-
-
-
