@@ -1,4 +1,4 @@
-# Visual Tiles Nicely Compacted - Reader/Writer LIB
+# Visual Sequence File - Reader/Writer LIB
 ## WORK IN PROGRESS
 Rust Library for a custom animated image file format that I created for my a fun "TV Head" cosplay project. It is also the project that I'm gonna be using for my undergraduate thesis.
 Yes, I know it is a strange name, it will probably be changed in the future.
@@ -15,10 +15,10 @@ Yes, I know it is a strange name, it will probably be changed in the future.
 <img src="https://github.com/Day-OS/VTNCRW-LIB/blob/main/filestructure/onepixelheight.gif?raw=true" width="50%" style="image-rendering: pixelated;">
 
 ```js
-//This is a RON representation of how the file works
+//This is a RON representation of how the animated file works, THIS HAS NO OPTIMIZATION and it is just to give an idea of how it will be made
 
 File(
-    header: "VTNCI"
+    header: "VSF"
     width: 21,
     height: 1,
     // If this is true then "frames" will be an array of struct Frame, when its not it will have just one element.
@@ -29,12 +29,14 @@ File(
         //In this case the amount of colors is SO small it only contains 1 pallete and 4 colors.
         Palette{
             //As there is only 4 different colours there's no need to spend more than 2 bits for each index.
-            bits_size: 0x2
+            //stored in a 5 bit space as this represent the quantity of bits in a 4 byte space (32).
+            //https://en.wikipedia.org/wiki/Color_depth
+            bit_depth: 0b10 // as there will always be a color, 0b0 must represent 1 instead of 0.
             colors: [
                 Color{r: 0xFF, g: 0x00, b: 0x95, a: 0xFF},
                 Color{r: 0x00, g: 0xB9, b: 0xF2, a: 0xFF},
                 Color{r: 0xFA, g: 0xD5, b: 0x00, a: 0xFF},
-                Color{r: 0x00, g: 0x00, b: 0x00,a: 0x00}
+                Color{r: 0x00, g: 0x00, b: 0x00, a: 0x00}
             ]
         }
     ]
@@ -46,35 +48,54 @@ File(
             chunks: [
                 Chunk{
                   pallet_id : 0
-                  pixels: [0b00, 0b01, 0b10, 0b11] //[0,1,2,3]
+                  pixels: [0b00, 0b01, 0b10, 0b11, 
+                  0b00, 0b01, 0b10, 0b11, 
+                  0b00, 0b01, 0b10, 0b11, 
+                  0b00, 0b01, 0b10, 0b11, 
+                  0b00] //[0,1,2,3]
                 }
             ], 
             //The delay is in a hundreth of a second
             delay_frame_end: 100
         },
         Frame{
+            chunk_subdivision: 1
             chunks: [
                 Chunk{
                   pallet_id : 0
-                  pixels: [0b01, 0b10, 0b11, 0b00] //[1,2,3,0]
+                  pixels: [0b01, 0b10, 0b11, 0b00,
+                  0b01, 0b10, 0b11, 0b00,
+                  0b01, 0b10, 0b11, 0b00,
+                  0b01, 0b10, 0b11, 0b00,
+                  0b01] //[1,2,3,0]
                 }
             ], 
             delay_frame_end: 100
         },
         Frame{
+            chunk_subdivision: 1
             chunks: [
                 Chunk{
                   pallet_id : 0
-                  pixels: [0b10, 0b11, 0b00, 0b01] //[2,3,0,1]
+                  pixels: [0b10, 0b11, 0b00, 0b01,
+                  0b10, 0b11, 0b00, 0b01,
+                  0b10, 0b11, 0b00, 0b01,
+                  0b10, 0b11, 0b00, 0b01,
+                  0b10] //[2,3,0,1]
                 }
             ], 
             delay_frame_end: 100
         },
-        Frame{.
+        Frame{
+            chunk_subdivision: 1
             chunks: [
                 Chunk{
                   pallet_id : 0
-                  pixels: [0b11, 0b00, 0b01, 0b10] //[3,0,1,2]
+                  pixels: [0b11, 0b00, 0b01, 0b10,
+                  0b11, 0b00, 0b01, 0b10,
+                  0b11, 0b00, 0b01, 0b10,
+                  0b11, 0b00, 0b01, 0b10,
+                  0b11] //[3,0,1,2]
                 }
             ],
             delay_frame_end: 100
@@ -82,6 +103,52 @@ File(
     ]
 )
 ```
+**This is just an example it might be changed in the future!!!**
+
+```js
+//This is a RON representation of how the still imageworks, THIS ONE HAS BETTER DETAILS
+
+//same as QOI Run! If the current pixel is the same as the before it will check every pixel in front of it to check if it is still the same. Then it will register how much times it repeated
+//RUN(times_repeated)
+//LZSS(OFFSET, LENGTH)
+//It will copy the last pixel and change its value according to the specified rules.
+//DIFF(difference_red, difference_green, difference_blue)
+//HASH(Index) //THIS NEEDS a way to put them in an array in a fastest way!!!
+
+File(
+    header: "VSF"
+    width: 21,
+    height: 1,
+    is_animated: false,
+    has_alpha_channel: true,
+    palettes: [
+        Palette{
+            bit_depth: 0b10
+            colors: [
+                Color{r: 0xFF, g: 0x00, b: 0x95, a: 0xFF},
+                Color{r: 0x00, g: 0xB9, b: 0xF2, a: 0xFF},
+                Color{r: 0xFA, g: 0xD5, b: 0x00, a: 0xFF},
+                Color{r: 0x00, g: 0x00, b: 0x00, a: 0x00}
+            ]
+        }
+    ]
+    frames:
+        Frame{
+            chunk_subdivision: 1
+            chunks: [
+                Chunk{
+                  pallet_id : 0
+                  pixels: [Hash(0b11), Hash(0b00), Hash(0b01), Hash(0b10),
+                  LZSS(4, 13)\] //[3,0,1,2]
+                }
+            ], 
+            //The delay is in a hundreth of a second
+            delay_frame_end: 100
+        }
+)
+```
+
+
 
 ## Main
 | Offset # (HEX)| Byte SIze | Content              | Meaning |
@@ -110,6 +177,7 @@ Chunks:
 
 3 bit for color quantity
 
+# VER ISSO AQUI DEPOIS. PRIORIDADE Nº1
 # Como alcançar True color?
 <img src=https://upload.wikimedia.org/wikipedia/commons/a/aa/SmallFullColourGIF.gif>
 
@@ -122,15 +190,14 @@ Existem alguns problemas com esse método:
 - Como saber o número ideal de chunks em uma imagem qualquer? R: As chunks poderiam começar por um número pré-definido e se subdividirem em chunks menores caso o numero de cores em uma certa chunk exceda o limite de 65,535 cores (2 Bytes)
 - Uma paleta de uma chunk deve repetir mais de uma vez em caso de repetição extrema? R:SIM! Paletas devem possuir seus proprios identificadores.
 
-# VER ISSO AQUI DEPOIS. PRIORIDADE Nº1
-
-- As chunks são REALMENTE necessárias se a ideia é usar menos do que 4 bytes?
-
 As paletas serão declaradas individualmente das chunks de exibição, pois dessa forma haverá garantia que todas as chunks terão acesso a todas as paletas de cores.
 
+- As chunks são REALMENTE necessárias se a ideia é usar menos do que 4 bytes? R: Em partes, sim! pois uma foto pode haver MUUUITAS cores de um lado e poucas do outro lado
 
 
 Inspiration:
 - https://bitbeamcannon.com/nes-graphical-specs/
 - https://en.wikipedia.org/wiki/GIF
 - https://en.wikipedia.org/wiki/PNG
+- https://www.youtube.com/watch?v=EFUYNoFRHQI (How PNG Works: Compromising Speed for Quality)
+- https://en.wikipedia.org/wiki/QOI_(image_format)
