@@ -190,23 +190,40 @@ File(
             </td>
             <td>Screen Resolution</td>
         </tr>
+        <tr>
+            <td>5</td>
+            <td>1</td>
+            <td>
+                <table>
+                    <thead>  
+                        <tr>  
+                            <th>Bit</th>  
+                            <th>Meaning</th> 
+                        </tr>  
+                    </thead>  
+                    <tbody>  
+                        <tr>  
+                            <td>1 Bit</td>  
+                            <td>Is animated?</td>   
+                        </tr>  
+                        <tr>  
+                            <td>1 Bit</td>  
+                            <td>Has alpha Channel?</td>   
+                        </tr>  
+                        <tr> 
+                            <td>6 Bit</td>  
+                            <td>Palettes Size</td>   
+                        </tr>  
+                    </tbody>
+                </table>
+            </td>
+            <td>Global configuration</td>
+        </tr>
     </tbody>
 </table>
 
-
-|5| 1 | <table><thead>  <tr>  <th>Bit</th>  <th>Meaning</th>  </tr>  </thead>  <tbody>  <tr>  <td>1 Bit</td>  <td>Is animated?</td>   </tr>  <tr>  <td>1 Bit</td>  <td>Has alpha channel?</td>   </tr> <tr>  <td>6 Bit</td>  <td>Palettes Size</td>   </tr> </tbody></table>|Global configuration
-
     
 
-
-| Offset # (HEX)| Byte SIze | Content                     | Meaning  |
-| :------       | :------   | --------------------------- |  :------ |
-| 0             |    3      | 56 53 46 (ASCII for VSF )   | Header   | 
-| 5    |4| <table><thead>  <tr>  <th>Width</th>  <th>Height</th>  </tr>  </thead>  <tbody>  <tr>  <td>2 Bytes</td>  <td>2 Bytes</td>   </tr>  </tbody></table>   | Screen Resolution         |
-|5| 1 | <table><thead>  <tr>  <th>Bit</th>  <th>Meaning</th>  </tr>  </thead>  <tbody>  <tr>  <td>1 Bit</td>  <td>Is animated?</td>   </tr>  <tr>  <td>1 Bit</td>  <td>Has alpha channel?</td>   </tr> <tr>  <td>6 Bit</td>  <td>Palettes Size</td>   </tr> </tbody></table>|Global configuration
-
-    
-| 5 + ? + 4  | ??               | ??            | Overall |
 
 ## Chunk
 
