@@ -105,6 +105,9 @@ File(
 ```
 **This is just an example it might be changed in the future!!!**
 
+<img src="https://github.com/Day-OS/VTNCRW-LIB/blob/main/filestructure/onepixelheight.png?raw=true" width="50%" style="image-rendering: pixelated;">
+
+
 ```js
 //This is a RON representation of how the still imageworks, THIS ONE HAS BETTER DETAILS
 
@@ -117,10 +120,11 @@ File(
 
 File(
     header: "VSF"
-    width: 21,
-    height: 1,
+    width: 0x0015,
+    height: 0x0001,
     is_animated: false,
     has_alpha_channel: true,
+    palettes_size: 0b0001
     palettes: [
         Palette{
             bit_depth: 0b10
@@ -133,17 +137,15 @@ File(
         }
     ]
     frames:
-        Frame{
+        Single_Frame{
             chunk_subdivision: 1
             chunks: [
                 Chunk{
                   pallet_id : 0
                   pixels: [Hash(0b11), Hash(0b00), Hash(0b01), Hash(0b10),
-                  LZSS(4, 13)\] //[3,0,1,2]
+                  LZSS(0100, 1101)]  //
                 }
-            ], 
-            //The delay is in a hundreth of a second
-            delay_frame_end: 100
+            ],
         }
 )
 ```
@@ -151,11 +153,30 @@ File(
 
 
 ## Main
-| Offset # (HEX)| Byte SIze | Content              | Meaning |
-| :------       | :------       | ---------------- |  :------ |
-| 0       |    5  | 56 54 4E 43 49 (ASCII for VTNCI )   | Header | 
-| 5 + ?    |4| <table><thead>  <tr>  <th>Width</th>  <th>Height</th>  </tr>  </thead>  <tbody>  <tr>  <td>2 Bytes</td>  <td>2 Bytes</td>   </tr>  </tbody></table>   | Screen Resolution         |
-|5 Bytes| ? | <table><thead>  <tr>  <th>Bit</th>  <th>Meaning</th>  </tr>  </thead>  <tbody>  <tr>  <td>1 Bit</td>  <td>Is animated?</td>   </tr>  <tr>  <td>1 Bit</td>  <td>Has alpha channel?</td>   </tr> </tbody></table>|Global configuration
+<table>
+    <thead>
+        <tr>
+            <th>Offset # (HEX)</th>
+            <th>Byte Size</th>
+            <th>Content</th>
+            <th>Meaning </th>
+        </tr>
+    </thead>
+</table>
+| Offset # (HEX)| Byte SIze | Content                     | Meaning  |
+| :------       | :------   | --------------------------- |  :------ |
+| 0             |    3      | 56 53 46 (ASCII for VSF )   | Header   | 
+| 5    |4| <table><thead>  <tr>  <th>Width</th>  <th>Height</th>  </tr>  </thead>  <tbody>  <tr>  <td>2 Bytes</td>  <td>2 Bytes</td>   </tr>  </tbody></table>   | Screen Resolution         |
+|5| 1 | <table><thead>  <tr>  <th>Bit</th>  <th>Meaning</th>  </tr>  </thead>  <tbody>  <tr>  <td>1 Bit</td>  <td>Is animated?</td>   </tr>  <tr>  <td>1 Bit</td>  <td>Has alpha channel?</td>   </tr> <tr>  <td>6 Bit</td>  <td>Palettes Size</td>   </tr> </tbody></table>|Global configuration
+
+    
+
+
+| Offset # (HEX)| Byte SIze | Content                     | Meaning  |
+| :------       | :------   | --------------------------- |  :------ |
+| 0             |    3      | 56 53 46 (ASCII for VSF )   | Header   | 
+| 5    |4| <table><thead>  <tr>  <th>Width</th>  <th>Height</th>  </tr>  </thead>  <tbody>  <tr>  <td>2 Bytes</td>  <td>2 Bytes</td>   </tr>  </tbody></table>   | Screen Resolution         |
+|5| 1 | <table><thead>  <tr>  <th>Bit</th>  <th>Meaning</th>  </tr>  </thead>  <tbody>  <tr>  <td>1 Bit</td>  <td>Is animated?</td>   </tr>  <tr>  <td>1 Bit</td>  <td>Has alpha channel?</td>   </tr> <tr>  <td>6 Bit</td>  <td>Palettes Size</td>   </tr> </tbody></table>|Global configuration
 
     
 | 5 + ? + 4  | ??               | ??            | Overall |
@@ -163,14 +184,6 @@ File(
 ## Chunk
 
 This is repeated a lot throughout the file.
-
-Chunks:
-| Offset # (HEX)| Byte SIze | Content              | Meaning |
-| :------       | :------       | ---------------- |  :------ |
-| 0       |    5  | 56 54 4E 43 49 (ASCII for VTNCI )   | Header | 
-|5 Bytes| ? | <table><thead>  <tr>  <th>Bit</th>  <th>Meaning</th>  </tr>  </thead>  <tbody>  <tr>  <td>1 Bit</td>  <td>Is animated?</td>   </tr>  <tr>  <td>1 Bit</td>  <td>Has alpha channel?</td>   </tr> </tbody></table>|Global configuration
-| 5 + ?    |4| <table><thead>  <tr>  <th>Width</th>  <th>Height</th>  </tr>  </thead>  <tbody>  <tr>  <td>2 Bytes</td>  <td>2 Bytes</td>   </tr>  </tbody></table>   | Screen Resolution         |
-| 5 + ? + 4  | ??               | ??            | Overall |
 
 
 
